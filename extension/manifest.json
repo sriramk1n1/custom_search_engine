@@ -1,0 +1,13 @@
+{
+    "manifest_version": 3,
+    "name": "RAG Model Website Search",
+    "version": "1.0",
+    "description": "Inject a search bar into webpages and get answers using RAG model.",
+    "permissions": ["activeTab", "scripting"],
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"]
+      }
+    ]
+  }

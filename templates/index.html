@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI Search - AI-Powered Website Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Ragify Search</h1>
+            <nav>
+                <p class="btn">Welcome, {{ session['email'] }}!</p>
+                <a class="btn btn-outline" href="{{ url_for('logout') }}">Logout</a>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Popup Overlay -->
+            <div id="popupOverlay" class="popup-overlay" style="display: none;">
+                <div class="popup-content">
+                    <h3>Crawl Settings</h3>
+                    <label for="threads">Number of Threads</label>
+                    <input type="number" id="threads" min="1" placeholder="e.g., 5" value=100>
+
+                    <label for="pattern">Pattern</label>
+                    <input type="text" id="pattern" placeholder="e.g., /wiki/">
+
+                    <label for="iterations">Number of Iterations</label>
+                    <input type="number" id="iterations" min="1" placeholder="e.g., 10" value=1>
+
+                    <label for="linksToCrawl">Number of Links to Crawl</label>
+                    <input type="number" id="linksToCrawl" min="1" placeholder="e.g., 100" value=100>
+
+                    <button id="confirmCrawlButton" class="btn btn-crawl">Start Crawl</button>
+                    <button id="closePopupButton" class="btn btn-outline">Cancel</button>
+                </div>
+            </div>
+
+            <section class="intro">
+                <h2>Empower Your Website with AI-Driven Search</h2>
+                <p>
+                    Ragify Search mixes RAG (Retrieval-Augmented Generation) models and crawling capabilities to provide 
+                    intelligent, context-aware search capabilities for your website. Enhance user experience 
+                    and boost engagement with our cutting-edge AI technology.
+                </p>
+            </section>
+
+            <div class="glass-container">
+                <div class="input-section">
+                    <input type="url" id="urlInput" placeholder="Enter your website URL">
+                    <button id="crawlButton" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" class="icon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        Crawl
+                    </button>
+                </div>
+
+                <div class="pages-list">
+                    <h3>Crawled Pages</h3>
+                    <ul id="pagesList"></ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
