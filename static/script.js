@@ -13,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
     });
 
+    socket.on('count', function(data) {
+        const counter = document.getElementById(`counter${data.hash}`);
+        counter.innerText=data.value;
+    });
+
     const urlInput = document.getElementById('urlInput');
     const crawlButton = document.getElementById('crawlButton');
     const popupOverlay = document.getElementById('popupOverlay');
@@ -58,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pattern: pattern,
                 iterations: iterations,
                 linksToCrawl: linksToCrawl,
+                socket_id: socket.id
             })
         })
         .then(response => response.json())
@@ -101,11 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.className = 'page-item';
             li.innerHTML = `
-                <span title="${page.url}">
-                    <svg viewBox="0 0 24 24" class="icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                    <a href="${page.url}" target="_blank" > ${page.url} </a>
+                <span title="${page.url}" style="flex-grow: 1">
+                    <img style="padding-top:6px; padding-right:4px" height="18" width="20" src='http://www.google.com/s2/favicons?domain=${page.url}' />
+                    <a class="myurl" href="${page.url}" target="_blank" > ${truncateUrl(page.url)} </a>
                 </span>
                 <span class="status ora status-${page.status}">${page.status}</span>
+                <span class="status ora status-${page.status}" id="counter${page.id}"></span>
                 <div class="actions">
                     <button class="crawl" data-id="${page.url}" title="Crawl again">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
@@ -141,6 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
             pagesList.appendChild(li);
         });
 
+        function truncateUrl(url) {
+            if (url.length > 30) {
+                return url.slice(0, 30) + "..."; // Truncate and add ellipsis
+            }
+            return url; // Return the full URL if it's short enough
+        }
+
         // Add event listeners to buttons
         document.querySelectorAll('.delete').forEach(button => {
             button.addEventListener('click', handleDelete);
@@ -156,38 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // })
     }
 
-    function handleDownload(e){
-        console.log("HHHHIIII")
-        const id = e.target.closest('.download').dataset.id;
-        fetch('/download', {
-            method: "POST",
-            headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-            body: new URLSearchParams({ pageid: id })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                let filename = 'output.zip';
-
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename; // Set filename dynamically based on header
-                document.body.appendChild(a); // Append link to the body
-                a.click(); // Trigger download
-                a.remove(); // Remove link after download
-                window.URL.revokeObjectURL(url); // Release the blob URL
-            })
-            .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-        });
-    }
 
     function handleGoto(e){
         const id = e.target.closest('.goto').dataset.id;

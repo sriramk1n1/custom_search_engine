@@ -34,7 +34,7 @@ def load_crawled_urls(prefix=""):
     """Load crawled URLs from file."""
     try:
         with open(os.path.join(prefix, "crawled.txt"), "r") as crawled_file:
-            return {line.strip() for line in crawled_file}
+            return set(line.strip() for line in crawled_file)
     except FileNotFoundError:
         logging.warning("Crawled file not found. Returning empty set.")
         return set()
@@ -106,11 +106,22 @@ def process_html_content(url, soup, prefix, document_freq):
     text = soup.get_text()  
     calculate_term_frequency(text, url, prefix, document_freq)
 
-def update_file_with_urls(url_set, file_path):
+def update_crawled_file(url_set, file_path):
     """Update a file with a set of URLs."""
     with open(file_path, "w") as file:
         for url in url_set:
             file.write(url + '\n')
+
+def update_uncrawled_file(obtained, file_path):
+    with open(file_path, "r") as uncrawled_file:
+        urls = set(line.strip() for line in uncrawled_file)
+
+    urls.update(obtained)
+    count = len(urls)
+    with open(file_path, "w") as uncrawled_file:
+        for url in urls:
+            uncrawled_file.write(url + '\n')
+    return count
 
 def load_document_frequency(prefix=""):
     """Load document frequency from file, if available."""
@@ -125,7 +136,7 @@ def is_valid_link(url):
     """Determine if a URL points to a valid HTML page."""
     return not any(url.lower().endswith(ext) for ext in ["jpg", "jpeg", "pdf", "png", "webp", "xls", "xlsx", "PDF"])
 
-def crawl_url(url, obtained_urls, url_index, prefix, document_freq, crawled_set, uncrawled_total):
+def crawl_url(url, obtained_urls, url_index, prefix, document_freq, crawled_set, uncrawled_total, count, socketio, socket_id):
     """Crawl the given URL, extracting hyperlinks and calculating term frequency."""
     if not is_valid_link(url):
         logging.info(f"Skipping invalid URL: {url}")
@@ -150,13 +161,15 @@ def crawl_url(url, obtained_urls, url_index, prefix, document_freq, crawled_set,
                 new_links.append(link)
 
         with lock:
+            count["value"]+=1
+            socketio.emit('count', {"value":f"{count["value"]}/{uncrawled_total}","hash":prefix[5:]}, to=socket_id)
             obtained_urls.update(new_links)
             logging.info(f"({url_index}/{uncrawled_total}) Extracted {len(new_links)} URLs from {url}")
 
     except requests.RequestException as e:
         logging.error(f"Error crawling {url}: {e}")
 
-def MainCrawl(socketio, seed_url, prefix="", max_urls=100, num_threads=100, pattern="", iterations=1):
+def MainCrawl(socketio, socket_id, seed_url, prefix="", max_urls=100, num_threads=100, pattern="", iterations=1):
     """Orchestrate the main crawling process with configuration parameters."""
     global THREADS, ITERATIONS, PATTERN
     THREADS = num_threads
@@ -186,9 +199,11 @@ def MainCrawl(socketio, seed_url, prefix="", max_urls=100, num_threads=100, patt
             uncrawled_total = len(uncrawled_urls)
             futures = []
 
+            count = dict()
+            count["value"]=0
             with ThreadPoolExecutor(max_workers=THREADS) as executor:
                 for idx, url in enumerate(uncrawled_urls, start=1):
-                    future = executor.submit(crawl_url, url, obtained_urls, idx, prefix, document_freq, crawled_set, uncrawled_total)
+                    future = executor.submit(crawl_url, url, obtained_urls, idx, prefix, document_freq, crawled_set, uncrawled_total, count, socketio, socket_id)
                     futures.append(future)
 
                 for future in futures:
@@ -200,17 +215,17 @@ def MainCrawl(socketio, seed_url, prefix="", max_urls=100, num_threads=100, patt
                         logging.error(f"Thread encountered an error: {e}")
 
             crawled_set.update(uncrawled_urls)
-            update_file_with_urls(crawled_set, os.path.join(prefix, "crawled.txt"))
-            update_file_with_urls(obtained_urls, os.path.join(prefix, "uncrawled.txt"))
+            update_crawled_file(crawled_set, os.path.join(prefix, "crawled.txt"))
+            uncrawled_count = update_uncrawled_file(obtained_urls, os.path.join(prefix,"uncrawled.txt"))
 
             logging.info(f"Iteration complete. Crawled: {len(crawled_set)}, Remaining: {len(obtained_urls)}")
-            update_status(prefix[5:], f"{len(crawled_set)} crawled, {len(obtained_urls)} remaining, Stopped.")
+            update_status(prefix[5:], f"{len(crawled_set)} crawled, {uncrawled_count} remaining, Stopped.")
             socketio.emit('update')
 
     except KeyboardInterrupt:
         logging.info("Crawling interrupted. Saving state...")
-        update_file_with_urls(crawled_set, os.path.join(prefix, "crawled.txt"))
-        update_file_with_urls(obtained_urls, os.path.join(prefix, "uncrawled.txt"))
+        update_crawled_file(crawled_set, os.path.join(prefix, "crawled.txt"))
+        update_uncrawled_file(obtained_urls, os.path.join(prefix, "uncrawled.txt"))
 
     finally:
         with open(os.path.join(prefix, "doc_freq"), "w") as f:

@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Ragify Search</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #FF6600;
-            --background-color: #0F172A;
-            --text-color: #E2E8F0;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary-color: #ff774d;       /* Vibrant orange */
+            --primary-hover: #575757;       /* Lighter orange for hover */
+            --background-color: #1e1e1e;    /* Dark charcoal */
+            --text-color: #f2f2f2;          /* Soft white text */
+            --glass-bg: rgba(41, 41, 41, 0.95); /* Semi-transparent dark gray */
+            --glass-border: rgba(255, 119, 77, 0.15); /* Orange tinted border */
         }
 
         * {
@@ -21,8 +22,8 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            font-family: 'Fira Sans', sans-serif; /* Updated to Fira Sans */
+            background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
             justify-content: center;
@@ -34,20 +35,20 @@
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            border-radius: 8px;
             padding: 2rem;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(44, 44, 46, 0.267);
             text-align: center;
         }
 
-        h1,h4,a {
+        h1, h4, a {
             color: var(--primary-color);
             margin-bottom: 1.5rem;
         }
 
-        a,h4 {
+        h4, a {
             padding-top: 20px;
         }
 
@@ -56,10 +57,17 @@
             padding: 0.75rem 1rem;
             margin: 0.5rem 0;
             border: 1px solid var(--glass-border);
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(26, 29, 26, 0.6); /* Darker background */
             color: var(--text-color);
             border-radius: 10px;
             font-size: 1rem;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        input[type="email"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(26, 29, 26, 0.8); /* Darker background on focus */
         }
 
         .btn-primary {
@@ -77,7 +85,7 @@
         }
 
         .btn-primary:hover {
-            opacity: 0.9;
+            background-color: var(--primary-hover); /* Use hover color */
             transform: translateY(-2px);
         }
     </style>
@@ -91,7 +99,7 @@
             <button type="submit" class="btn-primary">Sign Up</button>
         </form>
         <h4>
-            <a href="/login"> Already a user? Login</a>
+            <a href="/login">Already a user? Login</a>
         </h4>
     </div>
 

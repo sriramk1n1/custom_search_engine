@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusAI Search - AI-Powered Website Search</title>
+    <title>Custom Search</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Ragify Search</h1>
+            <span>
+                <h1 style="display: inline;">CUSTOM </h1>
+                <h1 style="display: inline; color:#858585">SEARCH</h1>
+            </span>
             <nav>
-                <p class="btn">Welcome, {{ session['email'] }}!</p>
+                <p class="btn welcome">Welcome, {{ session['email'] }}!</p>
                 <a class="btn btn-outline" href="{{ url_for('logout') }}">Logout</a>
             </nav>
         </header>
@@ -41,11 +46,10 @@
             </div>
 
             <section class="intro">
-                <h2>Empower Your Website with AI-Driven Search</h2>
+                <h2>Enhance Your Website with Custom Search</h2>
                 <p>
-                    Ragify Search mixes RAG (Retrieval-Augmented Generation) models and crawling capabilities to provide 
-                    intelligent, context-aware search capabilities for your website. Enhance user experience 
-                    and boost engagement with our cutting-edge AI technology.
+                    Custom Search uses RAG (Retrieval-Augmented Generation) model and crawling capabilities to provide 
+                    intelligent, context-aware search capabilities for your website.
                 </p>
             </section>
 
@@ -59,7 +63,6 @@
                 </div>
 
                 <div class="pages-list">
-                    <h3>Crawled Pages</h3>
                     <ul id="pagesList"></ul>
                 </div>
             </div>

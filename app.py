@@ -120,6 +120,7 @@ def crawl():
     pattern = data.get("pattern", "")
     iterations = int(data.get("iterations", 1))
     links_to_crawl = int(data.get("linksToCrawl", 10))
+    socket_id = data.get("socket_id")
     base_url = get_base_url(url)
 
     if not url:
@@ -134,7 +135,7 @@ def crawl():
     logger.info(f"Starting crawl for {url} with hash {url_hash}")
 
     # Start the crawler in a new thread
-    thread = Thread(target=MainCrawl, args=(socketio, url, url_hash, links_to_crawl, threads, pattern, iterations))
+    thread = Thread(target=MainCrawl, args=(socketio, socket_id,  url, url_hash, links_to_crawl, threads, pattern, iterations))
     thread.start()
 
     return jsonify({"id": url_hash, "url": url, "status": "Pending..."}), 200
@@ -184,6 +185,7 @@ def crawlnext():
     pattern = data.get("pattern", "")
     iterations = int(data.get("iterations", 1))
     links_to_crawl = int(data.get("linksToCrawl", 10))
+    socket_id = data.get("socket_id")
 
     if not url:
         logger.error("Next crawl initiation failed: No URL provided")
@@ -193,7 +195,7 @@ def crawlnext():
     set_crawling(url_hash)
 
     # Start next crawl in a new thread
-    thread = Thread(target=MainCrawl, args=(socketio, url, url_hash, links_to_crawl, threads, pattern, iterations))
+    thread = Thread(target=MainCrawl, args=(socketio,socket_id, url, url_hash, links_to_crawl, threads, pattern, iterations))
     thread.start()
 
     logger.info(f"Continuing crawl for {url} with hash {url_hash}")

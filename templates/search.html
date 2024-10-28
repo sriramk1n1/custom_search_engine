@@ -3,59 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ragify Search</title>
+    <title>Custom Search</title>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <style>
+        :root {
+            --primary-color: #ff774d;        /* Vibrant orange */
+            --background-color: #1e1e1e;     /* Dark charcoal */
+            --text-color: #f2f2f2;           /* Soft white text */
+            --glass-bg: rgba(41, 41, 41, 0.95); /* Semi-transparent dark gray */
+            --glass-border: rgba(255, 119, 77, 0.15); /* Orange tinted border */
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', sans-serif; /* Maintain Poppins font */
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-            color: #E2E8F0;
+            color: var(--text-color);
+            background-color: var(--background-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .container {
             width: 100%;
             max-width: 800px;
             padding: 2rem;
         }
+
         .search-container {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--glass-bg);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
             padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(47, 47, 51, 0.37);
             margin-bottom: 2rem;
         }
+        input {
+            flex-grow: 1;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid var(--glass-border);
+            background: rgba(26, 29, 26, 0.6);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(26, 29, 26, 0.8);
+        }
+
         h2 {
-            color: #FF6600;
+            color: var(--primary-color);
             font-size: 2rem;
             margin-bottom: 1rem;
             text-align: center;
         }
+
         #search-form {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
         }
-        input[type=text] {
-            flex: 1;
-            min-width: 200px;
-            padding: 12px 20px;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #E2E8F0;
-            font-size: 1rem;
-        }
+
+   
         button {
-            background-color: #FF6600;
-            color: #0F172A;
+            background-color: var(--primary-color);
+            color: var(--background-color);
             padding: 12px 20px;
             border: none;
             cursor: pointer;
@@ -65,41 +85,47 @@
             transition: all 0.3s ease;
             min-width: 100px;
         }
+
         button:hover {
             opacity: 0.9;
             transform: translateY(-2px);
         }
+
         button:disabled {
             background-color: #cccccc;
             color: #666666;
             cursor: not-allowed;
         }
+
         #summary {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 2rem;
             white-space: pre-line;
             display: none;
         }
+
         .url-list {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
             border-radius: 10px;
             padding: 20px;
             display: none;
         }
+
         .url-list-item {
             display: block;
             padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
             border-radius: 5px;
-            color: #E2E8F0;
+            color: var(--text-color);
             text-decoration: none;
             transition: background-color 0.3s ease;
         }
+
         .url-list-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -124,17 +150,19 @@
         const socket = io();
 
         socket.on('summary', function(data) {
-            const ele = document.getElementById('summary')
+            const ele = document.getElementById('summary');
             if (ele.innerHTML === "Generating summary...") ele.innerHTML = "";
             ele.innerHTML += data.chunk;
         });
+
         const hash = "{{hash}}";
         const url = "{{url}}";
-        console.log(url)
+        console.log(url);
+
         document.getElementById('search-form').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the form from submitting normally
             var query = document.getElementById('query').value.trim();
-            socket.emit('summary', { "query": query, "url": url })
+            socket.emit('summary', { "query": query, "url": url });
             document.getElementById("sbtn").disabled = true;
             document.getElementById("summary").innerHTML = "Generating summary...";
             document.getElementById("summary").style.display = "block";
